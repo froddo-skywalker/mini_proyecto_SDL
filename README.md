@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Sistema de biblioteca
 
 Aplicación de consola en Python para gestionar libros, usuarios, préstamos y reportes.
@@ -33,3 +34,7 @@ python main.py
 python -m py_compile main.py biblioteca.py
 python -m unittest discover -s tests -v
 ```
+=======
+# mini_proyecto_SDL
+prueba biblioteca escolar
+>>>>>>> 6db483d5caaa3751b29afe60d9c685c6cdcec45a
