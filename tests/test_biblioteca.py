@@ -112,6 +112,34 @@ class BibliotecaTests(unittest.TestCase):
             self.assertEqual(len(nueva.libros), 1)
             self.assertEqual(len(nueva.prestamos), 1)
 
+    def test_pago_reactiva_libro_daniado(self):
+        usuario = Estudiante("Ana", "U-9", 11, "3", "B")
+        self.biblioteca.registrar_usuario(usuario)
+        libro = Libro("Libro dañado", "Autor", "978-8-901", "B060", 12.0)
+        self.biblioteca.registrar_libro(libro)
+        self.biblioteca.prestar_libro(usuario.identificacion, libro.codigo_barras)
+        self.biblioteca.devolver_libro(libro.codigo_barras, condicion="daniado")
+
+        self.assertFalse(libro.disponible)
+        self.assertEqual(usuario.deuda, 12.0)
+
+        self.biblioteca.registrar_pago(usuario.identificacion, 12.0)
+        self.assertEqual(usuario.deuda, 0.0)
+        self.assertTrue(libro.disponible)
+
+    def test_visualizar_reporte_csv(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            biblioteca = Biblioteca(ruta_base=tmpdir)
+            usuario = Profesor("Nora", "U-8", 45, ["Primaria"], ["B"])
+            biblioteca.registrar_usuario(usuario)
+            libro = Libro("Moby Dick", "Melville", "978-7-890", "B050", 28.0)
+            biblioteca.registrar_libro(libro)
+            biblioteca.prestar_libro(usuario.identificacion, libro.codigo_barras)
+            contenido = biblioteca.generar_reporte_csv()
+
+            self.assertIn("usuario_id", contenido)
+            self.assertIn("Moby Dick", contenido)
+
     def test_edad_estudiante_fuera_de_rango(self):
         with self.assertRaises(ValueError):
             Estudiante("Pepe", "E-ERR", 5, "1", "A")

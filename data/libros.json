@@ -104,7 +104,7 @@
     "isbn": "0000011223568",
     "codigo_barras": "6565559578",
     "precio": 20.0,
-    "disponible": false,
+    "disponible": true,
     "tipo": "fisico"
   }
 ]

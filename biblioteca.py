@@ -431,9 +431,18 @@ class Biblioteca:
             raise UsuarioNoEncontrado(f"Usuario {usuario_id} no existe")
         if monto <= 0:
             raise ValueError("El monto debe ser positivo")
+
         usuario.deuda = max(0.0, usuario.deuda - monto)
         if usuario.deuda == 0.0:
             usuario.vetado = False
+
+        for prestamo in self.prestamos:
+            if prestamo.usuario_id == usuario_id and prestamo.estado == "devuelto" and prestamo.condicion == "daniado":
+                libro = self.libros.get(prestamo.libro_codigo)
+                if libro is not None and not libro.disponible and prestamo.deuda_generada > 0 and usuario.deuda == 0:
+                    libro.disponible = True
+                    prestamo.condicion = "daniado_pagado"
+
         self._guardar_todos()
 
     def _marcar_libro_disponible(self, codigo_barras: str):
@@ -468,9 +477,8 @@ class Biblioteca:
 
     def generar_reporte_csv(self):
         ruta = self._ruta_json("reporte_prestamos.csv")
-        with open(ruta, "w", newline="", encoding="utf-8") as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow([
+        rows = [
+            [
                 "usuario_id",
                 "libro_codigo",
                 "titulo",
@@ -481,21 +489,32 @@ class Biblioteca:
                 "condicion",
                 "deuda_generada",
                 "pagado",
+            ]
+        ]
+
+        for prestamo in self.prestamos:
+            libro = self.libros.get(prestamo.libro_codigo)
+            rows.append([
+                prestamo.usuario_id,
+                prestamo.libro_codigo,
+                libro.titulo if libro else "",
+                _date_to_str(prestamo.fecha_inicio),
+                _date_to_str(prestamo.fecha_vencimiento),
+                prestamo.estado,
+                prestamo.prorroga_aplicada,
+                prestamo.condicion or "",
+                prestamo.deuda_generada,
+                prestamo.pagado,
             ])
-            for prestamo in self.prestamos:
-                libro = self.libros.get(prestamo.libro_codigo)
-                writer.writerow([
-                    prestamo.usuario_id,
-                    prestamo.libro_codigo,
-                    libro.titulo if libro else "",
-                    _date_to_str(prestamo.fecha_inicio),
-                    _date_to_str(prestamo.fecha_vencimiento),
-                    prestamo.estado,
-                    prestamo.prorroga_aplicada,
-                    prestamo.condicion or "",
-                    prestamo.deuda_generada,
-                    prestamo.pagado,
-                ])
+
+        with open(ruta, "w", newline="", encoding="utf-8") as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerows(rows)
+
+        output = []
+        for row in rows:
+            output.append(",".join(str(value) for value in row))
+        return "\n".join(output)
 
     def cerrar(self):
         self._guardar_todos()

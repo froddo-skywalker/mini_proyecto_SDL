@@ -117,9 +117,20 @@ def prestar_libro(biblioteca):
         print(f"Error: {exc}")
 
 
+def leer_respuesta_si_no(mensaje):
+    while True:
+        respuesta = input(mensaje).strip().lower()
+        if respuesta in {"si", "sí", "s"}:
+            return True
+        if respuesta in {"no", "n"}:
+            return False
+        print("Respuesta inválida. Responde con 'si' o 'no'.")
+
+
 def devolver_libro(biblioteca):
     codigo = input("Código de barras del libro a devolver: ")
-    condicion = input("Condición (bueno/daniado): ").strip().lower() or "bueno"
+    esta_bueno = leer_respuesta_si_no("¿El libro está en buena condición? (si/no): ")
+    condicion = "bueno" if esta_bueno else "daniado"
     try:
         biblioteca.devolver_libro(codigo, condicion)
         print("Devolución registrada.")
