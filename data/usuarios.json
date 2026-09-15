@@ -1,0 +1,130 @@
+[
+  {
+    "nombre": "Elena",
+    "identificacion": "U-7",
+    "edad": 10,
+    "tipo": "estudiante",
+    "vetado": true,
+    "deuda": 22.0,
+    "prestamos_activos": [],
+    "grado": "5",
+    "seccion": "D"
+  },
+  {
+    "nombre": "Luis",
+    "identificacion": "U-2",
+    "edad": 40,
+    "tipo": "profesor",
+    "vetado": true,
+    "deuda": 30.0,
+    "prestamos_activos": [
+      "B010"
+    ],
+    "grados": [
+      "Primero",
+      "Segundo",
+      "Tercero"
+    ],
+    "secciones_asignadas": [
+      "A",
+      "B"
+    ]
+  },
+  {
+    "nombre": "Marta",
+    "identificacion": "U-3",
+    "edad": 8,
+    "tipo": "estudiante",
+    "vetado": false,
+    "deuda": 0.0,
+    "prestamos_activos": [],
+    "grado": "2",
+    "seccion": "B"
+  },
+  {
+    "nombre": "Ana",
+    "identificacion": "U-1",
+    "edad": 12,
+    "tipo": "estudiante",
+    "vetado": true,
+    "deuda": 50.0,
+    "prestamos_activos": [
+      "B000",
+      "B001",
+      "B002",
+      "B003",
+      "B004"
+    ],
+    "grado": "3",
+    "seccion": "A"
+  },
+  {
+    "nombre": "Sofia",
+    "identificacion": "U-5",
+    "edad": 9,
+    "tipo": "estudiante",
+    "vetado": true,
+    "deuda": 18.0,
+    "prestamos_activos": [
+      "B020"
+    ],
+    "grado": "4",
+    "seccion": "C"
+  },
+  {
+    "nombre": "Diego",
+    "identificacion": "U-4",
+    "edad": 7,
+    "tipo": "estudiante",
+    "vetado": false,
+    "deuda": 0.0,
+    "prestamos_activos": [],
+    "grado": "1",
+    "seccion": "A"
+  },
+  {
+    "nombre": "Pablo",
+    "identificacion": "U-6",
+    "edad": 35,
+    "tipo": "profesor",
+    "vetado": false,
+    "deuda": 0.0,
+    "prestamos_activos": [
+      "B030"
+    ],
+    "grados": [
+      "Primaria"
+    ],
+    "secciones_asignadas": [
+      "A"
+    ]
+  },
+  {
+    "nombre": "Freddy",
+    "identificacion": "5466611",
+    "edad": 11,
+    "tipo": "estudiante",
+    "vetado": false,
+    "deuda": 0.0,
+    "prestamos_activos": [],
+    "grado": "6",
+    "seccion": "A"
+  },
+  {
+    "nombre": "Julio",
+    "identificacion": "8557865",
+    "edad": 36,
+    "tipo": "profesor",
+    "vetado": false,
+    "deuda": 0.0,
+    "prestamos_activos": [],
+    "grados": [
+      "2",
+      "3"
+    ],
+    "secciones_asignadas": [
+      "A",
+      "C"
+    ]
+  }
+]

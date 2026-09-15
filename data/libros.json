@@ -1,0 +1,110 @@
+[
+  {
+    "titulo": "La metamorfosis",
+    "autor": "Kafka",
+    "isbn": "978-6-789",
+    "codigo_barras": "B040",
+    "precio": 22.0,
+    "disponible": false,
+    "tipo": "fisico"
+  },
+  {
+    "titulo": "El Quijote",
+    "autor": "Cervantes",
+    "isbn": "978-9-999",
+    "codigo_barras": "B010",
+    "precio": 30.0,
+    "disponible": false,
+    "tipo": "fisico"
+  },
+  {
+    "titulo": "Libro 0",
+    "autor": "Autor",
+    "isbn": "ISBN-0",
+    "codigo_barras": "B000",
+    "precio": 10.0,
+    "disponible": false,
+    "tipo": "fisico"
+  },
+  {
+    "titulo": "Libro 1",
+    "autor": "Autor",
+    "isbn": "ISBN-1",
+    "codigo_barras": "B001",
+    "precio": 10.0,
+    "disponible": false,
+    "tipo": "fisico"
+  },
+  {
+    "titulo": "Libro 2",
+    "autor": "Autor",
+    "isbn": "ISBN-2",
+    "codigo_barras": "B002",
+    "precio": 10.0,
+    "disponible": false,
+    "tipo": "fisico"
+  },
+  {
+    "titulo": "Libro 3",
+    "autor": "Autor",
+    "isbn": "ISBN-3",
+    "codigo_barras": "B003",
+    "precio": 10.0,
+    "disponible": false,
+    "tipo": "fisico"
+  },
+  {
+    "titulo": "Libro 4",
+    "autor": "Autor",
+    "isbn": "ISBN-4",
+    "codigo_barras": "B004",
+    "precio": 10.0,
+    "disponible": false,
+    "tipo": "fisico"
+  },
+  {
+    "titulo": "Otro",
+    "autor": "Autor",
+    "isbn": "ISBN-EXTRA",
+    "codigo_barras": "B999",
+    "precio": 10.0,
+    "disponible": true,
+    "tipo": "fisico"
+  },
+  {
+    "titulo": "Ficciones",
+    "autor": "Borges",
+    "isbn": "978-4-567",
+    "codigo_barras": "B020",
+    "precio": 18.0,
+    "disponible": false,
+    "tipo": "fisico"
+  },
+  {
+    "titulo": "Manual digital",
+    "autor": "Autor",
+    "isbn": "978-3-456",
+    "codigo_barras": "D100",
+    "precio": 5.0,
+    "disponible": true,
+    "tipo": "digital"
+  },
+  {
+    "titulo": "1984",
+    "autor": "Orwell",
+    "isbn": "978-5-678",
+    "codigo_barras": "B030",
+    "precio": 20.0,
+    "disponible": false,
+    "tipo": "fisico"
+  },
+  {
+    "titulo": "100 años de soledad",
+    "autor": "Gabriel García Márquez",
+    "isbn": "0000011223568",
+    "codigo_barras": "6565559578",
+    "precio": 20.0,
+    "disponible": false,
+    "tipo": "fisico"
+  }
+]
