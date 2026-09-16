@@ -47,7 +47,7 @@ def listar_usuarios(biblioteca):
 
 def registrar_estudiante(biblioteca):
     nombre = input("Nombre del estudiante: ")
-    identificacion = input("Identificación: ")
+    identificacion = input("Identificación: ").strip()
     edad = leer_entero("Edad (6-14): ")
     grado = input("Grado: ")
     seccion = input("Sección: ")
@@ -61,7 +61,7 @@ def registrar_estudiante(biblioteca):
 
 def registrar_profesor(biblioteca):
     nombre = input("Nombre del profesor: ")
-    identificacion = input("Identificación: ")
+    identificacion = input("Identificación: ").strip()
     edad = leer_entero("Edad: ")
     grados = input("Grados asignados (separados por coma): ")
     secciones = input("Secciones asignadas (separadas por coma): ")
@@ -83,7 +83,7 @@ def registrar_libro_fisico(biblioteca):
     titulo = input("Título: ")
     autor = input("Autor: ")
     isbn = input("ISBN: ")
-    codigo = input("Código de barras: ")
+    codigo = input("Código de barras: ").strip()
     precio = leer_float("Precio: ")
     try:
         libro = Libro(titulo, autor, isbn, codigo, precio)
@@ -97,7 +97,7 @@ def registrar_libro_digital(biblioteca):
     titulo = input("Título del e-book: ")
     autor = input("Autor: ")
     isbn = input("ISBN: ")
-    codigo = input("Código de barras: ")
+    codigo = input("Código de barras: ").strip()
     precio = leer_float("Precio: ")
     try:
         libro = LibroDigital(titulo, autor, isbn, codigo, precio)
@@ -108,8 +108,8 @@ def registrar_libro_digital(biblioteca):
 
 
 def prestar_libro(biblioteca):
-    usuario_id = input("Identificación del usuario: ")
-    codigo = input("Código de barras del libro: ")
+    usuario_id = input("Identificación del usuario: ").strip()
+    codigo = input("Código de barras del libro: ").strip()
     try:
         biblioteca.prestar_libro(usuario_id, codigo)
         print("Préstamo realizado correctamente.")
@@ -128,7 +128,7 @@ def leer_respuesta_si_no(mensaje):
 
 
 def devolver_libro(biblioteca):
-    codigo = input("Código de barras del libro a devolver: ")
+    codigo = input("Código de barras del libro a devolver: ").strip()
     esta_bueno = leer_respuesta_si_no("¿El libro está en buena condición? (si/no): ")
     condicion = "bueno" if esta_bueno else "daniado"
     try:
@@ -139,11 +139,31 @@ def devolver_libro(biblioteca):
 
 
 def registrar_pago(biblioteca):
-    usuario_id = input("Identificación del usuario: ")
+    usuario_id = input("Identificación del usuario: ").strip()
     monto = leer_float("Monto del pago: ")
     try:
         biblioteca.registrar_pago(usuario_id, monto)
         print("Pago registrado.")
+    except Exception as exc:
+        print(f"Error: {exc}")
+
+
+def eliminar_libro(biblioteca):
+    codigo = input("Código de barras del libro: ").strip()
+    nombre = input("Nombre del libro: ").strip()
+    try:
+        biblioteca.eliminar_libro(codigo, nombre)
+        print("Libro eliminado correctamente.")
+    except Exception as exc:
+        print(f"Error: {exc}")
+
+
+def eliminar_usuario(biblioteca):
+    nombre = input("Nombre del usuario: ").strip()
+    identificacion = input("Número de identificación: ").strip()
+    try:
+        biblioteca.eliminar_usuario(nombre, identificacion)
+        print("Usuario eliminado correctamente.")
     except Exception as exc:
         print(f"Error: {exc}")
 
@@ -169,6 +189,8 @@ def main():
                 8: "Devolver libro",
                 9: "Registrar pago",
                 10: "Generar reporte",
+                11: "Eliminar libro",
+                12: "Eliminar usuario",
                 0: "Salir",
             },
         )
@@ -194,6 +216,10 @@ def main():
             registrar_pago(biblioteca)
         elif opcion == 10:
             generar_reporte(biblioteca)
+        elif opcion == 11:
+            eliminar_libro(biblioteca)
+        elif opcion == 12:
+            eliminar_usuario(biblioteca)
         elif opcion == 0:
             print("Saliendo del sistema...")
             break

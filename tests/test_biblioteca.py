@@ -146,6 +146,48 @@ class BibliotecaTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             Estudiante("Pepe", "E-ERR-2", 15, "1", "A")
 
+    def test_identificacion_se_normaliza_al_registrar(self):
+        usuario = Profesor("Luis", "  U-10  ", 40, ["Primero"], ["A"])
+
+        self.biblioteca.registrar_usuario(usuario)
+
+        self.assertEqual(usuario.identificacion, "U-10")
+        self.assertIs(self.biblioteca.usuarios["U-10"], usuario)
+
+    def test_eliminar_libros_fisicos_y_digitales(self):
+        fisico = Libro("Físico", "Autor", "ISBN-10", " B100 ", 10.0)
+        digital = LibroDigital("Digital", "Autor", "ISBN-11", "D101", 12.0)
+        self.biblioteca.registrar_libro(fisico)
+        self.biblioteca.registrar_libro(digital)
+
+        self.biblioteca.eliminar_libro(" B100 ", " físico ")
+        self.biblioteca.eliminar_libro("D101", "DIGITAL")
+
+        self.assertNotIn("B100", self.biblioteca.libros)
+        self.assertNotIn("D101", self.biblioteca.libros)
+
+    def test_no_eliminar_libro_con_prestamo_activo(self):
+        usuario = Profesor("Luis", "U-11", 40, ["Primero"], ["A"])
+        libro = Libro("Prestado", "Autor", "ISBN-12", "B102", 10.0)
+        self.biblioteca.registrar_usuario(usuario)
+        self.biblioteca.registrar_libro(libro)
+        self.biblioteca.prestar_libro("U-11", "B102")
+
+        with self.assertRaises(ValueError):
+            self.biblioteca.eliminar_libro("B102", "Prestado")
+
+    def test_eliminar_usuario_solo_sin_deuda(self):
+        sin_deuda = Profesor("Nora", " U-12 ", 45, ["Primaria"], ["B"])
+        con_deuda = Profesor("Pablo", "U-13", 35, ["Primaria"], ["A"], deuda=5.0)
+        self.biblioteca.registrar_usuario(sin_deuda)
+        self.biblioteca.registrar_usuario(con_deuda)
+
+        self.biblioteca.eliminar_usuario(" nora ", " U-12 ")
+
+        self.assertNotIn("U-12", self.biblioteca.usuarios)
+        with self.assertRaises(ValueError):
+            self.biblioteca.eliminar_usuario("Pablo", "U-13")
+
 
 if __name__ == "__main__":
     unittest.main()

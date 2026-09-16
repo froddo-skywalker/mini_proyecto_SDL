@@ -358,15 +358,51 @@ class Biblioteca:
         self._guardar_json(self._ruta_json("prestamos.json"), [prestamo.to_dict() for prestamo in self.prestamos])
 
     def registrar_libro(self, libro: Libro):
+        libro.codigo_barras = libro.codigo_barras.strip()
+        if not libro.codigo_barras:
+            raise ValueError("El código de barras es obligatorio")
         if libro.codigo_barras in self.libros:
             raise ValueError("Ya existe un libro con ese código de barras")
         self.libros[libro.codigo_barras] = libro
         self._guardar_todos()
 
     def registrar_usuario(self, usuario: Usuario):
+        usuario.identificacion = usuario.identificacion.strip()
+        if not usuario.identificacion:
+            raise ValueError("La identificación es obligatoria")
         if usuario.identificacion in self.usuarios:
             raise ValueError("Ya existe un usuario con esa identificación")
         self.usuarios[usuario.identificacion] = usuario
+        self._guardar_todos()
+
+    def eliminar_libro(self, codigo_barras: str, nombre: str):
+        codigo_barras = codigo_barras.strip()
+        nombre = nombre.strip()
+        libro = self.libros.get(codigo_barras)
+        if libro is None or libro.titulo.casefold() != nombre.casefold():
+            raise LibroNoEncontrado("No existe un libro con ese código de barras y nombre")
+        if any(
+            prestamo.libro_codigo == codigo_barras and prestamo.estado in {"activo", "vencido"}
+            for prestamo in self.prestamos
+        ):
+            raise LibroNoDisponible("No se puede eliminar un libro con un préstamo activo")
+        del self.libros[codigo_barras]
+        self._guardar_todos()
+
+    def eliminar_usuario(self, nombre: str, identificacion: str):
+        nombre = nombre.strip()
+        identificacion = identificacion.strip()
+        usuario = self.usuarios.get(identificacion)
+        if usuario is None or usuario.nombre.casefold() != nombre.casefold():
+            raise UsuarioNoEncontrado("No existe un usuario con ese nombre y número de identificación")
+        if usuario.deuda > 0:
+            raise UsuarioConDeuda("No se puede eliminar un usuario con deuda pendiente")
+        if usuario.prestamos_activos or any(
+            prestamo.usuario_id == identificacion and prestamo.estado in {"activo", "vencido"}
+            for prestamo in self.prestamos
+        ):
+            raise ValueError("No se puede eliminar un usuario con préstamos activos")
+        del self.usuarios[identificacion]
         self._guardar_todos()
 
     def prestar_libro(self, usuario_id: str, codigo_barras: str):
