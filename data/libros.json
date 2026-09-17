@@ -87,7 +87,9 @@
     "codigo_barras": "D100",
     "precio": 5.0,
     "disponible": true,
-    "tipo": "digital"
+    "tipo": "digital",
+    "acceso_enlace": "https://biblioteca.local/access/5d7cd3b808454033893712ca694f04fa",
+    "fecha_vencimiento_acceso": "2026-09-20T12:16:47.574604"
   },
   {
     "titulo": "1984",

@@ -42,7 +42,11 @@ def listar_usuarios(biblioteca):
         if usuario.tipo == "estudiante":
             print(f"- {usuario.identificacion} | Estudiante | {usuario.nombre} | {usuario.edad} años | Grado {usuario.grado} - Sección {usuario.seccion} | Vetado: {usuario.vetado} | Deuda: {usuario.deuda}")
         else:
-            print(f"- {usuario.identificacion} | Profesor | {usuario.nombre} | {usuario.edad} años | Grados: {', '.join(usuario.grados) if usuario.grados else 'Ninguno'} | Secciones: {', '.join(usuario.secciones_asignadas) if usuario.secciones_asignadas else 'Ninguna'} | Vetado: {usuario.vetado} | Deuda: {usuario.deuda}")
+            grados_secciones = ", ".join(
+                f"{grado}-{seccion}"
+                for grado, seccion in zip(usuario.grados, usuario.secciones_asignadas)
+            ) or "Ninguno"
+            print(f"- {usuario.identificacion} | Profesor | {usuario.nombre} | {usuario.edad} años | Grados y secciones: {grados_secciones} | Vetado: {usuario.vetado} | Deuda: {usuario.deuda}")
 
 
 def registrar_estudiante(biblioteca):
@@ -103,6 +107,21 @@ def registrar_libro_digital(biblioteca):
         libro = LibroDigital(titulo, autor, isbn, codigo, precio)
         biblioteca.registrar_libro(libro)
         print("Libro digital registrado.")
+    except ValueError as exc:
+        print(f"Error: {exc}")
+
+
+def generar_enlace_digital(biblioteca):
+    codigo = input("Código de barras del libro digital: ").strip()
+    duracion = leer_entero("Duración del enlace en días: ")
+    try:
+        enlace = biblioteca.generar_enlace_acceso(codigo, duracion)
+        fecha_vencimiento = biblioteca.libros[codigo].fecha_vencimiento_acceso
+        print(f"Enlace generado: {enlace}")
+        print(
+            "Caduca el: "
+            f"{fecha_vencimiento.strftime('%Y-%m-%d %H:%M:%S')}"
+        )
     except ValueError as exc:
         print(f"Error: {exc}")
 
@@ -168,28 +187,6 @@ def eliminar_usuario(biblioteca):
         print(f"Error: {exc}")
 
 
-def generar_enlace_cli(biblioteca):
-    codigo = input("Código de barras del libro digital: ").strip()
-    dias = None
-    while dias is None:
-        try:
-            dias = int(input("Duración en días del acceso (por defecto 7): ") or "7")
-        except ValueError:
-            print("Ingresa un número válido para días.")
-    try:
-        enlace = biblioteca.generar_enlace_acceso(codigo, duracion_dias=dias)
-        libro = biblioteca.libros.get(codigo)
-        fecha = getattr(libro, "fecha_vencimiento_acceso", None)
-        fecha_str = fecha.strftime("%Y-%m-%d %H:%M:%S") if fecha else "(sin fecha)"
-        print(f"Enlace generado: {enlace}")
-        print(f"Expira el: {fecha_str}")
-    except Exception as exc:
-        print(f"Error: {exc}")
-
-
-
-
-
 def generar_reporte(biblioteca):
     biblioteca.generar_reporte_csv()
     print("Reporte generado en data/reporte_prestamos.csv")
@@ -213,7 +210,7 @@ def main():
                 10: "Generar reporte",
                 11: "Eliminar libro",
                 12: "Eliminar usuario",
-                13: "Generar enlace libro digital",
+                13: "Generar enlace de libro digital",
                 0: "Salir",
             },
         )
@@ -244,8 +241,9 @@ def main():
         elif opcion == 12:
             eliminar_usuario(biblioteca)
         elif opcion == 13:
-            generar_enlace_cli(biblioteca)
+            generar_enlace_digital(biblioteca)
         elif opcion == 0:
+            biblioteca.cerrar()
             print("Saliendo del sistema...")
             break
         else:

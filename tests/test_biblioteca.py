@@ -1,9 +1,12 @@
 import os
 import tempfile
 import unittest
+from contextlib import redirect_stdout
 from datetime import timedelta
+from io import StringIO
 
 from biblioteca import Biblioteca, Estudiante, Libro, LibroDigital, Profesor
+from main import listar_usuarios
 
 
 class BibliotecaTests(unittest.TestCase):
@@ -111,6 +114,54 @@ class BibliotecaTests(unittest.TestCase):
             self.assertEqual(len(nueva.usuarios), 1)
             self.assertEqual(len(nueva.libros), 1)
             self.assertEqual(len(nueva.prestamos), 1)
+
+    def test_recuperacion_completa_del_estado(self):
+        usuario = Profesor("Nora", "U-REC", 45, ["5"], ["D"])
+        libro = Libro("Estado", "Autor", "ISBN-REC", "B-REC", 28.0)
+        self.biblioteca.registrar_usuario(usuario)
+        self.biblioteca.registrar_libro(libro)
+        self.biblioteca.prestar_libro(usuario.identificacion, libro.codigo_barras)
+        self.biblioteca.actualizar_prestamos(
+            self.biblioteca.prestamos[0].fecha_vencimiento + timedelta(days=3)
+        )
+        self.biblioteca.cerrar()
+
+        recargada = Biblioteca(ruta_base=self.tmpdir.name)
+        usuario_recargado = recargada.usuarios[usuario.identificacion]
+        libro_recargado = recargada.libros[libro.codigo_barras]
+        prestamo_recargado = recargada.prestamos[0]
+
+        self.assertTrue(usuario_recargado.vetado)
+        self.assertEqual(usuario_recargado.deuda, libro.precio)
+        self.assertFalse(libro_recargado.disponible)
+        self.assertEqual(usuario_recargado.prestamos_activos, [libro.codigo_barras])
+        self.assertEqual(prestamo_recargado.estado, "vencido")
+
+    def test_devolucion_de_prestamo_vencido(self):
+        usuario = Estudiante("Elena", "U-VENC", 10, "5", "D")
+        libro = Libro("Vencido", "Autor", "ISBN-VENC", "B-VENC", 22.0)
+        self.biblioteca.registrar_usuario(usuario)
+        self.biblioteca.registrar_libro(libro)
+        self.biblioteca.prestar_libro(usuario.identificacion, libro.codigo_barras)
+        self.biblioteca.actualizar_prestamos(
+            self.biblioteca.prestamos[0].fecha_vencimiento + timedelta(days=3)
+        )
+
+        self.biblioteca.devolver_libro(libro.codigo_barras)
+
+        self.assertEqual(self.biblioteca.prestamos[0].estado, "devuelto")
+        self.assertTrue(libro.disponible)
+        self.assertEqual(usuario.prestamos_activos, [])
+
+    def test_profesor_conserva_pares_de_grado_y_seccion(self):
+        profesor = Profesor("Luis", "U-GRADOS", 40, ["5", "3"], ["D", "A"])
+        self.biblioteca.registrar_usuario(profesor)
+
+        salida = StringIO()
+        with redirect_stdout(salida):
+            listar_usuarios(self.biblioteca)
+
+        self.assertIn("Grados y secciones: 5-D, 3-A", salida.getvalue())
 
     def test_pago_reactiva_libro_daniado(self):
         usuario = Estudiante("Ana", "U-9", 11, "3", "B")

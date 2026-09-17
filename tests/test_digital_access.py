@@ -28,6 +28,19 @@ class DigitalAccessTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 b.acceder_libro_digital(libro.codigo_barras, enlace + "-wrong")
 
+    def test_acceso_digital_sobrevive_a_la_recarga(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            b = Biblioteca(ruta_base=tmpdir)
+            libro = LibroDigital("Ebook persistente", "Autor", "ISBN-D4", "DX04", 6.0)
+            b.registrar_libro(libro)
+            enlace = b.generar_enlace_acceso(libro.codigo_barras, duracion_dias=2)
+            b.cerrar()
+
+            recargada = Biblioteca(ruta_base=tmpdir)
+
+            resultado = recargada.acceder_libro_digital(libro.codigo_barras, enlace)
+            self.assertIn("lectura", resultado.lower())
+
     def test_acceso_expirado(self):
         # controlamos el tiempo con Biblioteca.ahora
         base_time = datetime(2020, 1, 1, 12, 0, 0)

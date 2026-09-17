@@ -514,9 +514,16 @@ class Biblioteca:
         libro = self.libros.get(codigo_barras)
         if libro is None:
             raise LibroNoEncontrado(f"Libro {codigo_barras} no existe")
-        prestamo = next((p for p in reversed(self.prestamos) if p.libro_codigo == codigo_barras and p.estado == "activo"), None)
+        prestamo = next(
+            (
+                p
+                for p in reversed(self.prestamos)
+                if p.libro_codigo == codigo_barras and p.estado in {"activo", "vencido"}
+            ),
+            None,
+        )
         if prestamo is None:
-            raise PrestamoInvalido("No hay préstamo activo para ese libro")
+            raise PrestamoInvalido("No hay préstamo pendiente para ese libro")
 
         usuario = self.usuarios.get(prestamo.usuario_id)
         if usuario is None:
