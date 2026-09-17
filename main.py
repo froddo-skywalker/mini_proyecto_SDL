@@ -168,6 +168,28 @@ def eliminar_usuario(biblioteca):
         print(f"Error: {exc}")
 
 
+def generar_enlace_cli(biblioteca):
+    codigo = input("Código de barras del libro digital: ").strip()
+    dias = None
+    while dias is None:
+        try:
+            dias = int(input("Duración en días del acceso (por defecto 7): ") or "7")
+        except ValueError:
+            print("Ingresa un número válido para días.")
+    try:
+        enlace = biblioteca.generar_enlace_acceso(codigo, duracion_dias=dias)
+        libro = biblioteca.libros.get(codigo)
+        fecha = getattr(libro, "fecha_vencimiento_acceso", None)
+        fecha_str = fecha.strftime("%Y-%m-%d %H:%M:%S") if fecha else "(sin fecha)"
+        print(f"Enlace generado: {enlace}")
+        print(f"Expira el: {fecha_str}")
+    except Exception as exc:
+        print(f"Error: {exc}")
+
+
+
+
+
 def generar_reporte(biblioteca):
     biblioteca.generar_reporte_csv()
     print("Reporte generado en data/reporte_prestamos.csv")
@@ -191,6 +213,7 @@ def main():
                 10: "Generar reporte",
                 11: "Eliminar libro",
                 12: "Eliminar usuario",
+                13: "Generar enlace libro digital",
                 0: "Salir",
             },
         )
@@ -220,6 +243,8 @@ def main():
             eliminar_libro(biblioteca)
         elif opcion == 12:
             eliminar_usuario(biblioteca)
+        elif opcion == 13:
+            generar_enlace_cli(biblioteca)
         elif opcion == 0:
             print("Saliendo del sistema...")
             break

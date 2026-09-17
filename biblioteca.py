@@ -4,6 +4,7 @@ import csv
 import json
 import os
 from dataclasses import dataclass, field
+from uuid import uuid4
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
@@ -82,6 +83,20 @@ class Libro:
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Libro":
+        tipo = data.get("tipo", "fisico")
+        if tipo == "digital":
+            # construct LibroDigital with digital-specific fields
+            return LibroDigital(
+                titulo=data["titulo"],
+                autor=data["autor"],
+                isbn=data["isbn"],
+                codigo_barras=data["codigo_barras"],
+                precio=float(data.get("precio", 0)),
+                disponible=data.get("disponible", True),
+                acceso_enlace=data.get("acceso_enlace"),
+                fecha_vencimiento_acceso=_str_to_date(data.get("fecha_vencimiento_acceso")),
+            )
+
         return cls(
             titulo=data["titulo"],
             autor=data["autor"],
@@ -89,16 +104,39 @@ class Libro:
             codigo_barras=data["codigo_barras"],
             precio=float(data.get("precio", 0)),
             disponible=data.get("disponible", True),
-            tipo=data.get("tipo", "fisico"),
+            tipo=tipo,
         )
 
 
 @dataclass
 class LibroDigital(Libro):
     tipo: str = "digital"
+    acceso_enlace: Optional[str] = None
+    fecha_vencimiento_acceso: Optional[datetime] = None
 
     def abrir(self):
         return f"Abriendo libro digital para lectura: {self.titulo} ({self.autor})"
+
+    def to_dict(self) -> Dict[str, Any]:
+        data = super().to_dict()
+        data.update({
+            "acceso_enlace": self.acceso_enlace,
+            "fecha_vencimiento_acceso": _date_to_str(self.fecha_vencimiento_acceso),
+        })
+        return data
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "LibroDigital":
+        return cls(
+            titulo=data["titulo"],
+            autor=data["autor"],
+            isbn=data["isbn"],
+            codigo_barras=data["codigo_barras"],
+            precio=float(data.get("precio", 0)),
+            disponible=data.get("disponible", True),
+            acceso_enlace=data.get("acceso_enlace"),
+            fecha_vencimiento_acceso=_str_to_date(data.get("fecha_vencimiento_acceso")),
+        )
 
 
 @dataclass
@@ -365,6 +403,42 @@ class Biblioteca:
             raise ValueError("Ya existe un libro con ese código de barras")
         self.libros[libro.codigo_barras] = libro
         self._guardar_todos()
+
+    def generar_enlace_acceso(self, codigo_barras: str, duracion_dias: int = 7) -> str:
+        """Genera un enlace único para un libro digital con una fecha de expiración."""
+        codigo_barras = codigo_barras.strip()
+        libro = self.libros.get(codigo_barras)
+        if libro is None:
+            raise LibroNoEncontrado(f"Libro {codigo_barras} no existe")
+        if libro.tipo != "digital":
+            raise ValueError("Solo se pueden generar enlaces para libros digitales")
+
+        # libro should be LibroDigital (from_dict creates LibroDigital for tipo digital)
+        ahora = self.ahora()
+        enlace = f"https://biblioteca.local/access/{uuid4().hex}"
+        # set attributes; works if instance is LibroDigital
+        setattr(libro, "acceso_enlace", enlace)
+        setattr(libro, "fecha_vencimiento_acceso", ahora + timedelta(days=duracion_dias))
+        self._guardar_todos()
+        return enlace
+
+    def acceder_libro_digital(self, codigo_barras: str, enlace: str) -> str:
+        """Valida el enlace y la fecha de expiración, devuelve el contenido si está permitido."""
+        codigo_barras = codigo_barras.strip()
+        libro = self.libros.get(codigo_barras)
+        if libro is None:
+            raise LibroNoEncontrado(f"Libro {codigo_barras} no existe")
+        if libro.tipo != "digital":
+            raise ValueError("No es un libro digital")
+
+        acceso_enlace = getattr(libro, "acceso_enlace", None)
+        fecha_venc = getattr(libro, "fecha_vencimiento_acceso", None)
+        if acceso_enlace is None or acceso_enlace != enlace:
+            raise ValueError("Enlace inválido")
+        ahora = self.ahora()
+        if fecha_venc is None or ahora > fecha_venc:
+            raise ValueError("Acceso expirado")
+        return libro.abrir()
 
     def registrar_usuario(self, usuario: Usuario):
         usuario.identificacion = usuario.identificacion.strip()
